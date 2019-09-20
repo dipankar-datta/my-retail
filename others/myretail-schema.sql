@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) DEFAULT NULL,
   `code` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `id` (`id`),
   KEY `code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -38,6 +39,7 @@ CREATE TABLE IF NOT EXISTS `cities` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` int(11) DEFAULT NULL,
   `code` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `unique_name` (`name`),
   UNIQUE KEY `unique_code` (`code`),
   KEY `id` (`id`),
@@ -56,6 +58,7 @@ CREATE TABLE IF NOT EXISTS `countries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(120) DEFAULT NULL,
   `code` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `unique_code` (`code`),
   UNIQUE KEY `unique_name` (`name`),
   KEY `key_id` (`id`),
@@ -91,9 +94,11 @@ DROP TABLE IF EXISTS `login`;
 CREATE TABLE IF NOT EXISTS `login` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `password` varchar(50) DEFAULT NULL,
+  `temporary_password` varchar(50) NOT NULL DEFAULT '0',
   `user` int(11) DEFAULT NULL,
   `status` int(1) DEFAULT NULL,
   `last_active` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `id` (`id`),
   KEY `FK_login_users` (`user`),
   CONSTRAINT `FK_login_users` FOREIGN KEY (`user`) REFERENCES `users` (`id`)
@@ -112,6 +117,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `date` datetime DEFAULT NULL,
   `amount` double DEFAULT NULL,
   `customer` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -144,6 +150,7 @@ CREATE TABLE IF NOT EXISTS `order_status_codes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(120) DEFAULT NULL,
   `code` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `unique_name` (`name`),
   UNIQUE KEY `unique_code` (`code`),
   KEY `id` (`id`),
@@ -163,6 +170,7 @@ CREATE TABLE IF NOT EXISTS `order_track` (
   `status_time` datetime DEFAULT NULL,
   `order` int(11) DEFAULT NULL,
   `status` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `id` (`id`),
   KEY `FK_order_track_orders` (`order`),
   KEY `FK_order_track_order_status_codes` (`status`),
@@ -185,6 +193,7 @@ CREATE TABLE IF NOT EXISTS `proucts` (
   `name` varchar(200) DEFAULT NULL,
   `price` double DEFAULT NULL,
   `description` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `id` (`id`),
   KEY `FK_proucts_categories` (`category`),
   KEY `FK_proucts_subcategories` (`subcategory`),
@@ -203,6 +212,7 @@ CREATE TABLE IF NOT EXISTS `roles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(160) DEFAULT NULL,
   `code` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `unique_code` (`code`),
   UNIQUE KEY `unique_name` (`name`),
   KEY `id` (`id`),
@@ -219,6 +229,7 @@ DROP TABLE IF EXISTS `segments`;
 CREATE TABLE IF NOT EXISTS `segments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -232,6 +243,7 @@ DROP TABLE IF EXISTS `shipment_modes`;
 CREATE TABLE IF NOT EXISTS `shipment_modes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(120) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -246,6 +258,7 @@ CREATE TABLE IF NOT EXISTS `states` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` int(11) DEFAULT NULL,
   `code` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `unique_code` (`code`),
   UNIQUE KEY `unique_name` (`name`),
   KEY `id` (`id`),
@@ -264,6 +277,7 @@ CREATE TABLE IF NOT EXISTS `subcategories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) DEFAULT NULL,
   `code` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `id` (`id`),
   KEY `code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -292,6 +306,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `address_line_1` varchar(120) DEFAULT NULL,
   `address_line_2` varchar(120) DEFAULT NULL,
   `role` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `code` (`code`),
   KEY `id` (`id`),
