@@ -26,12 +26,28 @@ CREATE TABLE IF NOT EXISTS `categories` (
   PRIMARY KEY (`id`),
   KEY `id` (`id`),
   KEY `code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table myretail.categories: ~0 rows (approximately)
 DELETE FROM `categories`;
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
+
+-- Dumping structure for table myretail.category_subcategory_map
+DROP TABLE IF EXISTS `category_subcategory_map`;
+CREATE TABLE IF NOT EXISTS `category_subcategory_map` (
+  `category` int(11) DEFAULT NULL,
+  `subcategory` int(11) DEFAULT NULL,
+  KEY `FK__categories` (`category`),
+  KEY `FK__subcategories` (`subcategory`),
+  CONSTRAINT `FK__categories` FOREIGN KEY (`category`) REFERENCES `categories` (`id`),
+  CONSTRAINT `FK__subcategories` FOREIGN KEY (`subcategory`) REFERENCES `subcategories` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Dumping data for table myretail.category_subcategory_map: ~0 rows (approximately)
+DELETE FROM `category_subcategory_map`;
+/*!40000 ALTER TABLE `category_subcategory_map` DISABLE KEYS */;
+/*!40000 ALTER TABLE `category_subcategory_map` ENABLE KEYS */;
 
 -- Dumping structure for table myretail.cities
 DROP TABLE IF EXISTS `cities`;
@@ -51,6 +67,37 @@ CREATE TABLE IF NOT EXISTS `cities` (
 DELETE FROM `cities`;
 /*!40000 ALTER TABLE `cities` DISABLE KEYS */;
 /*!40000 ALTER TABLE `cities` ENABLE KEYS */;
+
+-- Dumping structure for table myretail.contact_details
+DROP TABLE IF EXISTS `contact_details`;
+CREATE TABLE IF NOT EXISTS `contact_details` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `primary_contact` varchar(30) DEFAULT '',
+  `secondary_contact` varchar(30) DEFAULT '',
+  `email` varchar(30) DEFAULT '',
+  `customer` int(11) DEFAULT '0',
+  `country` int(11) DEFAULT '0',
+  `state` int(11) DEFAULT '0',
+  `city` int(11) DEFAULT '0',
+  `address_line_1` varchar(200) DEFAULT '0',
+  `address_line_2` varchar(200) DEFAULT '0',
+  `postal_code` varchar(30) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `id` (`id`),
+  KEY `FK__users` (`customer`),
+  KEY `FK__countries` (`country`),
+  KEY `FK__states` (`state`),
+  KEY `FK__cities` (`city`),
+  CONSTRAINT `FK__cities` FOREIGN KEY (`city`) REFERENCES `cities` (`id`),
+  CONSTRAINT `FK__countries` FOREIGN KEY (`country`) REFERENCES `countries` (`id`),
+  CONSTRAINT `FK__states` FOREIGN KEY (`state`) REFERENCES `states` (`id`),
+  CONSTRAINT `FK__users` FOREIGN KEY (`customer`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Dumping data for table myretail.contact_details: ~0 rows (approximately)
+DELETE FROM `contact_details`;
+/*!40000 ALTER TABLE `contact_details` DISABLE KEYS */;
+/*!40000 ALTER TABLE `contact_details` ENABLE KEYS */;
 
 -- Dumping structure for table myretail.countries
 DROP TABLE IF EXISTS `countries`;
@@ -94,7 +141,7 @@ DROP TABLE IF EXISTS `login`;
 CREATE TABLE IF NOT EXISTS `login` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `password` varchar(50) DEFAULT NULL,
-  `temporary_password` varchar(50) NOT NULL DEFAULT '0',
+  `temporary_password` varchar(50) DEFAULT '0',
   `user` int(11) DEFAULT NULL,
   `status` int(1) DEFAULT NULL,
   `last_active` datetime DEFAULT NULL,
@@ -114,11 +161,17 @@ DROP TABLE IF EXISTS `orders`;
 CREATE TABLE IF NOT EXISTS `orders` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `code` varchar(120) DEFAULT NULL,
+  `delivery_address` int(11) DEFAULT NULL,
+  `preferred_delivery_date` date DEFAULT NULL,
+  `preferred_time_from` time DEFAULT NULL,
+  `preferred_time_to` time DEFAULT NULL,
   `date` datetime DEFAULT NULL,
   `amount` double DEFAULT NULL,
   `customer` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `id` (`id`)
+  KEY `id` (`id`),
+  KEY `FK_orders_contact_details` (`delivery_address`),
+  CONSTRAINT `FK_orders_contact_details` FOREIGN KEY (`delivery_address`) REFERENCES `contact_details` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table myretail.orders: ~0 rows (approximately)
@@ -183,6 +236,43 @@ DELETE FROM `order_track`;
 /*!40000 ALTER TABLE `order_track` DISABLE KEYS */;
 /*!40000 ALTER TABLE `order_track` ENABLE KEYS */;
 
+-- Dumping structure for table myretail.product_units
+DROP TABLE IF EXISTS `product_units`;
+CREATE TABLE IF NOT EXISTS `product_units` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `product` int(11) NOT NULL DEFAULT '0',
+  `unit` varchar(50) DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  `price` double NOT NULL DEFAULT '0',
+  `discount_percentage` float DEFAULT NULL,
+  `discount_price` double DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `id` (`id`),
+  KEY `FK__proucts` (`product`),
+  CONSTRAINT `FK__proucts` FOREIGN KEY (`product`) REFERENCES `proucts` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Dumping data for table myretail.product_units: ~0 rows (approximately)
+DELETE FROM `product_units`;
+/*!40000 ALTER TABLE `product_units` DISABLE KEYS */;
+/*!40000 ALTER TABLE `product_units` ENABLE KEYS */;
+
+-- Dumping structure for table myretail.product_unit_map
+DROP TABLE IF EXISTS `product_unit_map`;
+CREATE TABLE IF NOT EXISTS `product_unit_map` (
+  `product` int(11) DEFAULT NULL,
+  `unit` int(11) DEFAULT NULL,
+  KEY `FK__proucts_map` (`product`),
+  KEY `FK__product_units` (`unit`),
+  CONSTRAINT `FK__product_units` FOREIGN KEY (`unit`) REFERENCES `product_units` (`id`),
+  CONSTRAINT `FK__proucts_map` FOREIGN KEY (`product`) REFERENCES `proucts` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Dumping data for table myretail.product_unit_map: ~0 rows (approximately)
+DELETE FROM `product_unit_map`;
+/*!40000 ALTER TABLE `product_unit_map` DISABLE KEYS */;
+/*!40000 ALTER TABLE `product_unit_map` ENABLE KEYS */;
+
 -- Dumping structure for table myretail.proucts
 DROP TABLE IF EXISTS `proucts`;
 CREATE TABLE IF NOT EXISTS `proucts` (
@@ -191,8 +281,10 @@ CREATE TABLE IF NOT EXISTS `proucts` (
   `category` varchar(10) DEFAULT NULL,
   `subcategory` varchar(10) DEFAULT NULL,
   `name` varchar(200) DEFAULT NULL,
-  `price` double DEFAULT NULL,
   `description` varchar(500) DEFAULT NULL,
+  `creation_time` datetime DEFAULT NULL,
+  `updation_time` datetime DEFAULT NULL,
+  `discount_percentage` float DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `id` (`id`),
   KEY `FK_proucts_categories` (`category`),
@@ -292,22 +384,12 @@ DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `code` varchar(30) DEFAULT NULL,
-  `firstname` varchar(100) DEFAULT NULL,
-  `lastname` varchar(100) DEFAULT NULL,
-  `country` varchar(10) DEFAULT NULL,
-  `state` varchar(10) DEFAULT NULL,
-  `city` varchar(10) DEFAULT NULL,
-  `sign_up_date` date DEFAULT NULL,
-  `region` varchar(20) DEFAULT NULL,
-  `postalcode` varchar(10) DEFAULT NULL,
-  `primary_contact_number` varchar(20) DEFAULT NULL,
-  `alternate_contact_number` varchar(20) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `address_line_1` varchar(120) DEFAULT NULL,
-  `address_line_2` varchar(120) DEFAULT NULL,
-  `role` int(11) NOT NULL DEFAULT '0',
+  `first_name` varchar(80) DEFAULT NULL,
+  `last_name` varchar(80) DEFAULT NULL,
+  `role` int(11) DEFAULT '0',
+  `creation_time` datetime DEFAULT NULL,
+  `updation_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`),
   UNIQUE KEY `code` (`code`),
   KEY `id` (`id`),
   KEY `FK_users_roles` (`role`),
@@ -318,6 +400,22 @@ CREATE TABLE IF NOT EXISTS `users` (
 DELETE FROM `users`;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
+
+-- Dumping structure for table myretail.user_contact
+DROP TABLE IF EXISTS `user_contact`;
+CREATE TABLE IF NOT EXISTS `user_contact` (
+  `user` int(11) DEFAULT NULL,
+  `contact` int(11) DEFAULT NULL,
+  KEY `FK__users_map` (`user`),
+  KEY `FK__contact_details` (`contact`),
+  CONSTRAINT `FK__contact_details` FOREIGN KEY (`contact`) REFERENCES `contact_details` (`id`),
+  CONSTRAINT `FK__users_map` FOREIGN KEY (`user`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Dumping data for table myretail.user_contact: ~0 rows (approximately)
+DELETE FROM `user_contact`;
+/*!40000 ALTER TABLE `user_contact` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_contact` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
