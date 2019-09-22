@@ -8,10 +8,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.sql.*;
 import java.util.*;
-import java.util.Date;
 
 
 public class SampleDataLoader {
@@ -20,18 +18,18 @@ public class SampleDataLoader {
         String filePath = "others"
                 + File.separator
                 + "Sample-Superstore.xls";
-
-
         System.out.println("File path: " + filePath);
         System.out.println(new File(filePath).exists());
-        printProducts(filePath);
-
+        loadExcelData(filePath);
     }
 
-    private static void printProducts(String filePath) throws IOException {
+    private static void loadExcelData(String filePath) throws IOException {
 
         Map<Category, Set<Category>> categoryMap = new HashMap<>();
         Set<Product> products = new HashSet<>();
+        Set<Item> segments = new HashSet<>();
+        Set<Item> shipmentModes = new HashSet<>();
+        Map<Item, Map<Item, Set<Item>>>  countryStateCityTree = new HashMap<>();
 
 
         try (FileInputStream file = new FileInputStream(new File(filePath))){
@@ -50,11 +48,27 @@ public class SampleDataLoader {
             {
                 Row row = rowIterator.next();
 
+                Cell shipmentModeCell = row.getCell(4);
+                Cell segmentModeCell = row.getCell(7);
+                Cell countryCell = row.getCell(8);
+                Cell cityCell = row.getCell(9);
+                Cell stateCell = row.getCell(10);
                 Cell productIdCell = row.getCell(13);
                 Cell categoryCell = row.getCell(14);
                 Cell subCategoryCell = row.getCell(15);
                 Cell productNameCell = row.getCell(16);
                 Cell priceCell = row.getCell(17);
+
+                populateCountryStateCity(
+                        countryCell.getStringCellValue(),
+                        stateCell.getStringCellValue(),
+                        cityCell.getStringCellValue(),
+                        countryStateCityTree);
+
+                segments.add(new Item(segmentModeCell.getStringCellValue()));
+                shipmentModes.add(new Item(shipmentModeCell.getStringCellValue()));
+
+
 
                 String productId = productIdCell.getStringCellValue();
                 String[] cat_Subcat = productId.split("-");
@@ -67,7 +81,15 @@ public class SampleDataLoader {
                 subCategories.add(subCategory);
                 categoryMap.put(category, subCategories);
 
-                products.add(new Product(productNameCell.getStringCellValue(), priceCell.getNumericCellValue(), category, subCategory));
+                products.add(
+                        new Product(
+                                productNameCell.getStringCellValue(),
+                                priceCell.getNumericCellValue(),
+                                category,
+                                subCategory,
+                                new Item(segmentModeCell.getStringCellValue())
+                        )
+                );
 
             }
         } catch (Exception e) {
@@ -76,25 +98,129 @@ public class SampleDataLoader {
 
         Set<Category> subCategories = new HashSet<>();
 
-        categoryMap.forEach((key, value) -> {
-         //   System.out.println("KEY: " + key.toString());
-         //   System.out.println("    VALUE: " + value.toString());
-            subCategories.addAll(value);
-        });
+        categoryMap.forEach((key, value) -> subCategories.addAll(value));
 
-        //saveCategories("categories", categoryMap.keySet());
-        //saveCategories("subcategories", subCategories);
+        clearExistingData();
+        saveCategories("categories", categoryMap.keySet());
+        saveCategories("subcategories", subCategories);
         processCatSubcatMap(categoryMap, fetchCategories(), fetchSubCategories());
-        processProducts(categoryMap,  products);
+        processSegments(segments);
+        processProducts(categoryMap, segments, products);
+        processShipmentModes(shipmentModes);
+        processCountryStateCity(countryStateCityTree);
+    }
 
+    private static void clearExistingData() {
+        executeQuery("DELETE FROM category_subcategory_map");
+        executeQuery("DELETE FROM products");
+        executeQuery("DELETE FROM categories");
+        executeQuery("DELETE FROM subcategories");
+        executeQuery("DELETE FROM segments");
+        executeQuery("DELETE FROM shipment_modes");
+        executeQuery("DELETE FROM country_state_city_map");
+        executeQuery("DELETE FROM countries");
+        executeQuery("DELETE FROM states");
+        executeQuery("DELETE FROM cities");
+    }
+
+    private static void processSegments(Set<Item> segments) {
+        segments.forEach(segment -> {
+            Integer id = executeQueryWithId("INSERT INTO segments (name) VALUES ('" + segment.getName() + "')");
+            if (id != null) {
+                segment.setId(id);;
+            }
+        });
+    }
+
+    private static void processShipmentModes(Set<Item> shipmentModes) {
+        shipmentModes.forEach(shipmentMode -> {
+            Integer id = executeQueryWithId("INSERT INTO shipment_modes (name) VALUES ('" + shipmentMode.getName() + "')");
+            if (id != null) {
+                shipmentMode.setId(id);;
+            }
+        });
+    }
+
+    public static void populateCountryStateCity(String country, String state, String city, Map<Item, Map<Item, Set<Item>>>  countryStateCityTree) {
+
+        Item countryItem = new Item(country);
+        Item stateItem = new Item(state);
+        Item cityItem = new Item(city);
+
+        Map<Item, Set<Item>> stateCityTree = countryStateCityTree.get(countryItem);
+        if (stateCityTree != null) {
+            Optional<Set<Item>> citiesOptional = stateCityTree.keySet()
+                    .stream()
+                    .filter(item -> item.getName().equals(stateItem.getName()))
+                    .map(item -> stateCityTree.get(item))
+                    .findFirst();
+            if (citiesOptional.isPresent()) {
+                citiesOptional.get().add(cityItem);
+            } else {
+                Set<Item> cities = new HashSet<>();
+                cities.add(cityItem);
+                stateCityTree.put(stateItem, cities);
+            }
+        } else {
+            Map<Item, Set<Item>> newStateCityTree = new HashMap<>();
+            Set<Item> cities = new HashSet<>();
+            cities.add(cityItem);
+            newStateCityTree.put(stateItem, cities);
+            countryStateCityTree.put(countryItem, newStateCityTree);
+        }
 
     }
 
-    public static boolean processProducts(Map<Category, Set<Category>> catSubcatMap, Set<Product> products){
+    public static void processCountryStateCity(Map<Item, Map<Item, Set<Item>>>  countryStateCityTree) {
+        executeQuery("DELETE FROM country_state_city_map");
+        executeQuery("DELETE FROM countries");
+        executeQuery("DELETE FROM states");
+        executeQuery("DELETE FROM cities");
+
+
+        System.out.println("Populated Country, State, City tree");
+        Map<Item, Integer> uniqieSavedCityIds = new HashMap<>();
+        countryStateCityTree.forEach((countryItem, stateCityMap) -> {
+
+            Integer countryId = executeQueryWithId("INSERT INTO countries (name) VALUES ('" + countryItem.getName() + "')");
+            if (countryId != null) {
+                countryItem.setId(countryId);
+            }
+            stateCityMap.forEach((stateItem, citySet) -> {
+                Integer stateId = executeQueryWithId("INSERT INTO states (name) VALUES ('" + stateItem.getName() + "')");
+                if (stateId != null) {
+                    stateItem.setId(stateId);
+                }
+                citySet.forEach(cityItem -> {
+                    Integer cityId = null;
+                    if (!uniqieSavedCityIds.containsKey(cityItem)) {
+                        cityId = executeQueryWithId("INSERT INTO cities (name) VALUES ('" + cityItem.getName() + "')");
+                        if (cityId != null) {
+                            cityItem.setId(cityId);
+                        }
+                        uniqieSavedCityIds.put(cityItem, cityId);
+                    } else {
+                        cityId = uniqieSavedCityIds.get(cityItem);
+                    }
+
+                    if (countryId != null && stateId != null && cityId != null) {
+                        executeQuery("INSERT INTO country_state_city_map (country, state, city) VALUES (" + countryId + ", " +stateId+ ", " + cityId + ")");
+                        System.out.println(countryId + " >> " + stateId+ " >> " + cityId);
+                    }
+                    System.out.println(countryItem.getName() + " >> " + stateItem.getName() + " >> " + cityItem.getName());
+                });
+            });
+        });
+    }
+
+    public static boolean processProducts(Map<Category, Set<Category>> catSubcatMap, Set<Item> segments, Set<Product> products){
         boolean success = false;
 
         StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO products (category, subcategory, name, description, creation_time, updation_time) VALUES ");
+        sb.append("INSERT INTO products (category, subcategory, name, description, creation_time, updation_time, segment) VALUES ");
+
+        Map<Item, Integer> segmentIdMap = new HashMap<>();
+        segments.forEach(segment -> segmentIdMap.put(segment, segment.getId()));
 
         products.stream()
                 .forEach(unsavedProduct -> {
@@ -110,7 +236,8 @@ public class SampleDataLoader {
                                             unsavedProduct.getName(),
                                             unsavedProduct.getName(),
                                             "NOW()",
-                                            "NOW()"
+                                            "NOW()",
+                                            segmentIdMap.get(unsavedProduct.getSegment())
                                     );
                                     sb.append(composedString + ",");
                                 }
@@ -122,7 +249,7 @@ public class SampleDataLoader {
 
         String sql = sb.toString();
         sql = sql.substring(0, sql.length() - 1) + ";";
-       // executeQuery(sql);
+        executeQuery(sql);
         return success;
     }
 
@@ -159,8 +286,8 @@ public class SampleDataLoader {
 
 
         String query = sb.toString();
-        //executeQuery("DELETE * FROM category_subcategory_map");
-        //executeQuery(query.substring(0, query.length() - 1));
+        executeQuery("DELETE FROM category_subcategory_map");
+        executeQuery(query.substring(0, query.length() - 1));
         return true;
     }
 
@@ -179,14 +306,14 @@ public class SampleDataLoader {
     }
 
     private static Set<Category> fetchCategories() {
-        return fetchQuery("SELECT * FROM categories");
+        return fetchCategories("SELECT * FROM categories");
     }
 
     private static Set<Category> fetchSubCategories() {
-        return fetchQuery("SELECT * FROM subcategories");
+        return fetchCategories("SELECT * FROM subcategories");
     }
 
-    private static Set<Category> fetchQuery(String query) {
+    private static Set<Category> fetchCategories(String query) {
         System.out.println("SQL FETCH: " + query);
         Set<Category> categories = new HashSet<>();
         Connection connection = null;
@@ -210,11 +337,34 @@ public class SampleDataLoader {
         } finally {
             closeResources(connection, statement, resultSet);
         }
-
-
-
         return categories;
     }
+
+    private static Integer executeQueryWithId(String query) {
+        System.out.println("SQL EXECUTE: " + query);
+        Connection connection = null;
+        Statement statement = null;
+        connection = getConnection();
+        ResultSet resultSet = null;
+        Integer insertedRecordId = null;
+        try {
+            connection.setAutoCommit(false);
+            statement = connection.createStatement();
+            statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+            connection.commit();
+            resultSet = statement.getGeneratedKeys();
+            if (resultSet.next()){
+                insertedRecordId = resultSet.getInt(1);
+            }
+        } catch (Exception e) {
+            rollbackWithExceptionTrace(connection, e);
+        } finally {
+            closeResources(connection, statement, resultSet);
+        }
+        return insertedRecordId;
+    }
+
+
 
     private static boolean executeQuery(String query) {
         boolean saved = false;
@@ -229,18 +379,10 @@ public class SampleDataLoader {
             connection.commit();
             saved = true;
         } catch (Exception e) {
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            e.printStackTrace();
+            rollbackWithExceptionTrace(connection, e);
         } finally {
            closeResources(connection, statement, null);
         }
-
         return saved;
     }
 
@@ -254,6 +396,20 @@ public class SampleDataLoader {
            e.printStackTrace();
         }
         return connection;
+    }
+
+    private static boolean rollbackWithExceptionTrace(Connection connection, Exception e) {
+        boolean status = false;
+        if (connection != null) {
+            try {
+                connection.rollback();
+                status = true;
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+        e.printStackTrace();
+        return status;
     }
 
     private static String composeSqlValues(Object... values) {
@@ -370,12 +526,14 @@ class Product {
     private double price;
     private Category category;
     private Category subCategory;
+    private Item segment;
 
-    public Product(String name, double price, Category category, Category subCategory) {
+    public Product(String name, double price, Category category, Category subCategory, Item segment) {
         this.name = name;
         this.price = price;
         this.category = category;
         this.subCategory = subCategory;
+        this.segment = segment;
     }
 
     public Integer getId() {
@@ -418,6 +576,31 @@ class Product {
         this.subCategory = subCategory;
     }
 
+    public Item getSegment() {
+        return segment;
+    }
+
+    public void setSegment(Item segment) {
+        this.segment = segment;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return Double.compare(product.price, price) == 0 &&
+                name.equals(product.name) &&
+                category.equals(product.category) &&
+                subCategory.equals(product.subCategory) &&
+                segment.equals(product.segment);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, price, category, subCategory, segment);
+    }
+
     @Override
     public String toString() {
         return "Product{" +
@@ -426,6 +609,58 @@ class Product {
                 ", price=" + price +
                 ", category=" + category +
                 ", subCategory=" + subCategory +
+                ", segment=" + segment +
+                '}';
+    }
+}
+
+class Item {
+    private Integer id;
+    private String name;
+
+    public Item(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public Item(String name) {
+        this.name = name;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return name.equals(item.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 '}';
     }
 }

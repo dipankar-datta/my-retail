@@ -26,12 +26,9 @@ CREATE TABLE IF NOT EXISTS `categories` (
   PRIMARY KEY (`id`),
   KEY `id` (`id`),
   KEY `code` (`code`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.categories: ~0 rows (approximately)
-DELETE FROM `categories`;
-/*!40000 ALTER TABLE `categories` DISABLE KEYS */;
-/*!40000 ALTER TABLE `categories` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.category_subcategory_map
 DROP TABLE IF EXISTS `category_subcategory_map`;
@@ -44,29 +41,23 @@ CREATE TABLE IF NOT EXISTS `category_subcategory_map` (
   CONSTRAINT `FK__subcategories` FOREIGN KEY (`subcategory`) REFERENCES `subcategories` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.category_subcategory_map: ~0 rows (approximately)
-DELETE FROM `category_subcategory_map`;
-/*!40000 ALTER TABLE `category_subcategory_map` DISABLE KEYS */;
-/*!40000 ALTER TABLE `category_subcategory_map` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.cities
 DROP TABLE IF EXISTS `cities`;
 CREATE TABLE IF NOT EXISTS `cities` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` int(11) DEFAULT NULL,
-  `code` int(11) DEFAULT NULL,
+  `name` varchar(120) DEFAULT NULL,
+  `code` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_name` (`name`),
   UNIQUE KEY `unique_code` (`code`),
   KEY `id` (`id`),
   KEY `code` (`code`),
   KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1845 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.cities: ~0 rows (approximately)
-DELETE FROM `cities`;
-/*!40000 ALTER TABLE `cities` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cities` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.contact_details
 DROP TABLE IF EXISTS `contact_details`;
@@ -94,35 +85,29 @@ CREATE TABLE IF NOT EXISTS `contact_details` (
   CONSTRAINT `FK__users` FOREIGN KEY (`customer`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.contact_details: ~0 rows (approximately)
-DELETE FROM `contact_details`;
-/*!40000 ALTER TABLE `contact_details` DISABLE KEYS */;
-/*!40000 ALTER TABLE `contact_details` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.countries
 DROP TABLE IF EXISTS `countries`;
 CREATE TABLE IF NOT EXISTS `countries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(120) DEFAULT NULL,
-  `code` varchar(10) DEFAULT NULL,
+  `code` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_code` (`code`),
   UNIQUE KEY `unique_name` (`name`),
   KEY `key_id` (`id`),
   KEY `key_code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.countries: ~0 rows (approximately)
-DELETE FROM `countries`;
-/*!40000 ALTER TABLE `countries` DISABLE KEYS */;
-/*!40000 ALTER TABLE `countries` ENABLE KEYS */;
+-- Data exporting was unselected.
 
--- Dumping structure for table myretail.country_state_city
-DROP TABLE IF EXISTS `country_state_city`;
-CREATE TABLE IF NOT EXISTS `country_state_city` (
+-- Dumping structure for table myretail.country_state_city_map
+DROP TABLE IF EXISTS `country_state_city_map`;
+CREATE TABLE IF NOT EXISTS `country_state_city_map` (
   `country` int(11) DEFAULT NULL,
-  `city` int(11) DEFAULT NULL,
   `state` int(11) DEFAULT NULL,
+  `city` int(11) DEFAULT NULL,
   KEY `FK_country_state_city_map_countries` (`country`),
   KEY `FK_country_state_city_map_states` (`state`),
   KEY `FK_country_state_city_map_cities` (`city`),
@@ -131,10 +116,7 @@ CREATE TABLE IF NOT EXISTS `country_state_city` (
   CONSTRAINT `FK_country_state_city_map_states` FOREIGN KEY (`state`) REFERENCES `states` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.country_state_city: ~0 rows (approximately)
-DELETE FROM `country_state_city`;
-/*!40000 ALTER TABLE `country_state_city` DISABLE KEYS */;
-/*!40000 ALTER TABLE `country_state_city` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.login
 DROP TABLE IF EXISTS `login`;
@@ -151,10 +133,7 @@ CREATE TABLE IF NOT EXISTS `login` (
   CONSTRAINT `FK_login_users` FOREIGN KEY (`user`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.login: ~0 rows (approximately)
-DELETE FROM `login`;
-/*!40000 ALTER TABLE `login` DISABLE KEYS */;
-/*!40000 ALTER TABLE `login` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.orders
 DROP TABLE IF EXISTS `orders`;
@@ -174,10 +153,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
   CONSTRAINT `FK_orders_contact_details` FOREIGN KEY (`delivery_address`) REFERENCES `contact_details` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.orders: ~0 rows (approximately)
-DELETE FROM `orders`;
-/*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-/*!40000 ALTER TABLE `orders` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.order_product
 DROP TABLE IF EXISTS `order_product`;
@@ -189,13 +165,10 @@ CREATE TABLE IF NOT EXISTS `order_product` (
   KEY `FK_order_product_orders` (`order`),
   KEY `FK_order_product_proucts` (`product`),
   CONSTRAINT `FK_order_product_orders` FOREIGN KEY (`order`) REFERENCES `orders` (`id`),
-  CONSTRAINT `FK_order_product_proucts` FOREIGN KEY (`product`) REFERENCES `proucts` (`id`)
+  CONSTRAINT `FK_order_product_proucts` FOREIGN KEY (`product`) REFERENCES `products` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.order_product: ~0 rows (approximately)
-DELETE FROM `order_product`;
-/*!40000 ALTER TABLE `order_product` DISABLE KEYS */;
-/*!40000 ALTER TABLE `order_product` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.order_status_codes
 DROP TABLE IF EXISTS `order_status_codes`;
@@ -210,10 +183,7 @@ CREATE TABLE IF NOT EXISTS `order_status_codes` (
   KEY `code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.order_status_codes: ~0 rows (approximately)
-DELETE FROM `order_status_codes`;
-/*!40000 ALTER TABLE `order_status_codes` DISABLE KEYS */;
-/*!40000 ALTER TABLE `order_status_codes` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.order_track
 DROP TABLE IF EXISTS `order_track`;
@@ -231,10 +201,32 @@ CREATE TABLE IF NOT EXISTS `order_track` (
   CONSTRAINT `FK_order_track_orders` FOREIGN KEY (`order`) REFERENCES `orders` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.order_track: ~0 rows (approximately)
-DELETE FROM `order_track`;
-/*!40000 ALTER TABLE `order_track` DISABLE KEYS */;
-/*!40000 ALTER TABLE `order_track` ENABLE KEYS */;
+-- Data exporting was unselected.
+
+-- Dumping structure for table myretail.products
+DROP TABLE IF EXISTS `products`;
+CREATE TABLE IF NOT EXISTS `products` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `code` varchar(50) DEFAULT NULL,
+  `segment` int(11) DEFAULT NULL,
+  `category` int(11) DEFAULT NULL,
+  `subcategory` int(11) DEFAULT NULL,
+  `name` varchar(200) DEFAULT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  `creation_time` datetime DEFAULT NULL,
+  `updation_time` datetime DEFAULT NULL,
+  `discount_percentage` float DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `id` (`id`),
+  KEY `FK_proucts_categories` (`category`),
+  KEY `FK_proucts_subcategories` (`subcategory`),
+  KEY `FK_products_segments` (`segment`),
+  CONSTRAINT `FK_products_segments` FOREIGN KEY (`segment`) REFERENCES `segments` (`id`),
+  CONSTRAINT `FK_proucts_categories` FOREIGN KEY (`category`) REFERENCES `categories` (`id`),
+  CONSTRAINT `FK_proucts_subcategories` FOREIGN KEY (`subcategory`) REFERENCES `subcategories` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=44359 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.product_units
 DROP TABLE IF EXISTS `product_units`;
@@ -249,13 +241,10 @@ CREATE TABLE IF NOT EXISTS `product_units` (
   PRIMARY KEY (`id`),
   KEY `id` (`id`),
   KEY `FK__proucts` (`product`),
-  CONSTRAINT `FK__proucts` FOREIGN KEY (`product`) REFERENCES `proucts` (`id`)
+  CONSTRAINT `FK__proucts` FOREIGN KEY (`product`) REFERENCES `products` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.product_units: ~0 rows (approximately)
-DELETE FROM `product_units`;
-/*!40000 ALTER TABLE `product_units` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_units` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.product_unit_map
 DROP TABLE IF EXISTS `product_unit_map`;
@@ -265,38 +254,10 @@ CREATE TABLE IF NOT EXISTS `product_unit_map` (
   KEY `FK__proucts_map` (`product`),
   KEY `FK__product_units` (`unit`),
   CONSTRAINT `FK__product_units` FOREIGN KEY (`unit`) REFERENCES `product_units` (`id`),
-  CONSTRAINT `FK__proucts_map` FOREIGN KEY (`product`) REFERENCES `proucts` (`id`)
+  CONSTRAINT `FK__proucts_map` FOREIGN KEY (`product`) REFERENCES `products` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.product_unit_map: ~0 rows (approximately)
-DELETE FROM `product_unit_map`;
-/*!40000 ALTER TABLE `product_unit_map` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_unit_map` ENABLE KEYS */;
-
--- Dumping structure for table myretail.proucts
-DROP TABLE IF EXISTS `proucts`;
-CREATE TABLE IF NOT EXISTS `proucts` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `code` varchar(50) DEFAULT NULL,
-  `category` varchar(10) DEFAULT NULL,
-  `subcategory` varchar(10) DEFAULT NULL,
-  `name` varchar(200) DEFAULT NULL,
-  `description` varchar(500) DEFAULT NULL,
-  `creation_time` datetime DEFAULT NULL,
-  `updation_time` datetime DEFAULT NULL,
-  `discount_percentage` float DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `id` (`id`),
-  KEY `FK_proucts_categories` (`category`),
-  KEY `FK_proucts_subcategories` (`subcategory`),
-  CONSTRAINT `FK_proucts_categories` FOREIGN KEY (`category`) REFERENCES `categories` (`code`),
-  CONSTRAINT `FK_proucts_subcategories` FOREIGN KEY (`subcategory`) REFERENCES `subcategories` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- Dumping data for table myretail.proucts: ~0 rows (approximately)
-DELETE FROM `proucts`;
-/*!40000 ALTER TABLE `proucts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `proucts` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.roles
 DROP TABLE IF EXISTS `roles`;
@@ -311,10 +272,7 @@ CREATE TABLE IF NOT EXISTS `roles` (
   KEY `code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.roles: ~0 rows (approximately)
-DELETE FROM `roles`;
-/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
-/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.segments
 DROP TABLE IF EXISTS `segments`;
@@ -322,13 +280,11 @@ CREATE TABLE IF NOT EXISTS `segments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
   KEY `id` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.segments: ~0 rows (approximately)
-DELETE FROM `segments`;
-/*!40000 ALTER TABLE `segments` DISABLE KEYS */;
-/*!40000 ALTER TABLE `segments` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.shipment_modes
 DROP TABLE IF EXISTS `shipment_modes`;
@@ -336,32 +292,27 @@ CREATE TABLE IF NOT EXISTS `shipment_modes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(120) DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
   KEY `id` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.shipment_modes: ~0 rows (approximately)
-DELETE FROM `shipment_modes`;
-/*!40000 ALTER TABLE `shipment_modes` DISABLE KEYS */;
-/*!40000 ALTER TABLE `shipment_modes` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.states
 DROP TABLE IF EXISTS `states`;
 CREATE TABLE IF NOT EXISTS `states` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` int(11) DEFAULT NULL,
-  `code` int(11) DEFAULT NULL,
+  `name` varchar(120) DEFAULT NULL,
+  `code` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_code` (`code`),
   UNIQUE KEY `unique_name` (`name`),
   KEY `id` (`id`),
   KEY `name` (`name`),
   KEY `code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=162 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.states: ~0 rows (approximately)
-DELETE FROM `states`;
-/*!40000 ALTER TABLE `states` DISABLE KEYS */;
-/*!40000 ALTER TABLE `states` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.subcategories
 DROP TABLE IF EXISTS `subcategories`;
@@ -372,12 +323,9 @@ CREATE TABLE IF NOT EXISTS `subcategories` (
   PRIMARY KEY (`id`),
   KEY `id` (`id`),
   KEY `code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=137 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.subcategories: ~0 rows (approximately)
-DELETE FROM `subcategories`;
-/*!40000 ALTER TABLE `subcategories` DISABLE KEYS */;
-/*!40000 ALTER TABLE `subcategories` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.users
 DROP TABLE IF EXISTS `users`;
@@ -396,10 +344,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   CONSTRAINT `FK_users_roles` FOREIGN KEY (`role`) REFERENCES `roles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.users: ~0 rows (approximately)
-DELETE FROM `users`;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 -- Dumping structure for table myretail.user_contact
 DROP TABLE IF EXISTS `user_contact`;
@@ -412,10 +357,7 @@ CREATE TABLE IF NOT EXISTS `user_contact` (
   CONSTRAINT `FK__users_map` FOREIGN KEY (`user`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table myretail.user_contact: ~0 rows (approximately)
-DELETE FROM `user_contact`;
-/*!40000 ALTER TABLE `user_contact` DISABLE KEYS */;
-/*!40000 ALTER TABLE `user_contact` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
