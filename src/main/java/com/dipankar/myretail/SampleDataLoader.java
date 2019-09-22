@@ -20,7 +20,8 @@ public class SampleDataLoader {
                 + "Sample-Superstore.xls";
         System.out.println("File path: " + filePath);
         System.out.println(new File(filePath).exists());
-        loadExcelData(filePath);
+        //loadExcelData(filePath);
+        //loadUserRoles();
     }
 
     private static void loadExcelData(String filePath) throws IOException {
@@ -108,6 +109,17 @@ public class SampleDataLoader {
         processProducts(categoryMap, segments, products);
         processShipmentModes(shipmentModes);
         processCountryStateCity(countryStateCityTree);
+        loadUserRoles();
+    }
+
+    private static void loadUserRoles() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("INSERT INTO ROLES (code, name) VALUES ");
+        sb.append("('ADMIN', 'Admin'),");
+        sb.append("('CUSTOMER', 'Customer'),");
+        sb.append("('EMPLOYEE', 'Employee'),");
+        sb.append("('SUPPLIER', 'Supplier');");
+        executeQuery(sb.toString());
     }
 
     private static void clearExistingData() {
@@ -391,7 +403,7 @@ public class SampleDataLoader {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/myretail","root","root");
+                    "jdbc:mysql://localhost:3306/myretail_users","root","root");
         } catch (Exception e) {
            e.printStackTrace();
         }
